@@ -33,12 +33,51 @@ impl KeyValueDb {
         }
         false
     }
+    pub fn delete(&mut self,key:&str) ->bool {
+        let insert_result=self.db_obj .execute("DELETE FROM kv_list WHERE key = ?1",&[&key]);
+        if insert_result.is_ok(){
+            if insert_result.unwrap()>0{
+                return true;
+            }
+        }
+        false
+    }
+    
+    pub fn get_value(&mut self,key:&str) -> bool {
+        println!("key: {}",key);
+        let stmt = self.db_obj.prepare("SELECT value FROM kv_list WHERE key=:key");
+        if stmt.is_ok(){
+            println!("stmt.is_ok()");
+            let mut stmt=stmt.unwrap();
+            let _person_iter = stmt.query_map(
+                &[(":key", key.to_string().as_str())], 
+                |row| {
+                    let row_result:String=row.get(0).unwrap();
+                    Ok(row_result)
+                }
+            );
+            for person in _person_iter {
+                person.for_each(move |s|{
+                    let dddd=s.unwrap();
+                    dbg!(dddd);
+                });
+            }            
+        }
+        return false;
+    }
 }
 
 #[test]
 fn full_test() {
     // cargo test  --lib full_test -- --nocapture
     let mut kv_obj=KeyValueDb::new("db_name");
-    kv_obj.add("key", "value");
+    //kv_obj.add("key1", "value");
+    //kv_obj.add("key2", "value");
+    //kv_obj.add("key3", "value");
+    //kv_obj.add("key4", "value");
+    //kv_obj.delete("key3");
+    kv_obj.get_value("key3");
+    
+    
     assert_eq!(true,true)
 }
