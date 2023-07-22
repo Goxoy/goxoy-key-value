@@ -1,3 +1,5 @@
+use std::borrow::BorrowMut;
+
 use rusqlite::Connection;
 
 #[derive(Debug)]
@@ -29,6 +31,22 @@ impl KeyValueDb {
         if insert_result.is_ok(){
             if insert_result.unwrap()>0{
                 return true;
+            }
+        }
+        false
+    }
+    pub fn flush(&mut self) -> bool{
+        let db_obj=self.db_obj.borrow_mut();
+        let db_path=db_obj.path();
+        if db_path.is_some(){
+            let db_path=db_path.unwrap();
+            if std::fs::metadata(db_path).is_ok(){
+                let close_result=db_obj.close();
+                if close_result.is_ok(){
+                    if std::fs::remove_file(db_path).is_ok(){
+                        return true;
+                    }
+                }
             }
         }
         false
@@ -73,7 +91,8 @@ impl KeyValueDb {
 fn full_test() {
     // cargo test  --lib full_test -- --nocapture
     let mut kv_obj=KeyValueDb::new("db_name");
-    //kv_obj.add("key1", "value");
+    kv_obj.add("key1", "value");
+    kv_obj.flush();
     //kv_obj.add("key2", "value");
     //kv_obj.add("key3", "value");
     //kv_obj.add("key4", "value");
