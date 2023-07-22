@@ -42,28 +42,30 @@ impl KeyValueDb {
         }
         false
     }
-    
-    pub fn get_value(&mut self,key:&str) -> bool {
-        println!("key: {}",key);
+    pub fn get_value(&mut self,key:&str) -> Option<String> {
         let stmt = self.db_obj.prepare("SELECT value FROM kv_list WHERE key=:key");
+        let mut result_str=String::new();
+        let mut founded=false;
         if stmt.is_ok(){
-            println!("stmt.is_ok()");
             let mut stmt=stmt.unwrap();
-            let _person_iter = stmt.query_map(
+            stmt.query_map(
                 &[(":key", key.to_string().as_str())], 
                 |row| {
                     let row_result:String=row.get(0).unwrap();
                     Ok(row_result)
                 }
-            );
-            for person in _person_iter {
-                person.for_each(move |s|{
-                    let dddd=s.unwrap();
-                    dbg!(dddd);
+            ).into_iter().for_each(|person| {
+                person.for_each(|s|{
+                    founded=true;
+                    result_str=s.unwrap();
                 });
-            }            
+            });            
         }
-        return false;
+        if founded==true{
+            Some(result_str)
+        }else{
+            None
+        }
     }
 }
 
@@ -76,7 +78,8 @@ fn full_test() {
     //kv_obj.add("key3", "value");
     //kv_obj.add("key4", "value");
     //kv_obj.delete("key3");
-    kv_obj.get_value("key3");
+    let rst=kv_obj.get_value("key3");
+    dbg!(rst);
     
     
     assert_eq!(true,true)
