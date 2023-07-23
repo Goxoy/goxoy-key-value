@@ -137,11 +137,11 @@ fn full_test() {
         }
         kv_obj.flush();
         if record_founded==true{
-            assert_eq!(true,true)
+            assert!(true)
         }else{
-            assert_eq!(true,false)
+            assert!(false)
         }
     }else{
-        assert_eq!(true,false)
+        assert!(false)
     }
 }
