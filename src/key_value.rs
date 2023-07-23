@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use rusqlite::Connection;
 
 #[derive(Debug)]
 pub struct KeyValueDb {
+    pub list:HashMap<String,String>,
     pub db_open:bool,
     pub db_obj:Connection,
     pub db_path:String,
@@ -15,15 +18,41 @@ impl KeyValueDb {
             Ok(_) => false,
             Err(_) => true
         };
+        let mut tmp_list:HashMap<String,String>=HashMap::new();
         let db_conn:Connection = Connection::open(full_path.clone()).unwrap();
         if create_table==true{
             let _db_result=db_conn.execute("CREATE TABLE kv_list ( key TEXT NOT NULL PRIMARY KEY, value TEXT NOT NULL )", ()).unwrap();
+        }else{
+            let stmt = db_conn.prepare("SELECT value FROM kv_list WHERE key=:key");
+            if stmt.is_ok(){
+                let mut stmt=stmt.unwrap();
+                stmt.query_map(
+                    (), 
+                    |row| {
+                        let row_result:String=row.get(0).unwrap();
+                        println!("row_result: {}",row_result);
+                        Ok(row_result)
+                    }
+                ).into_iter().for_each(|person| {
+                    person.for_each(|s|{
+                        //self.list.insert(k, v)
+                        //founded=true;
+                        let result_str=s.unwrap();
+                        println!("result_str: {}",result_str);
+                    });
+                });
+            }
         }
         KeyValueDb{
+            list:tmp_list,
             db_open:true,
             db_obj:db_conn,
             db_path:full_path.clone(),
         }
+    }
+    pub fn load_all(&mut self){
+        self.list.clear();
+       
     }
     pub fn add(&mut self,key:&str,value:&str) -> bool {
         if self.db_open==false {
