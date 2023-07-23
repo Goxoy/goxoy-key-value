@@ -16,6 +16,14 @@ db_obj.set_value("key-text", "value-text");
 // kayıt silmek için
 db_obj.delete("key-text");
 
+// kayıt okumak için
+let value_obj : Option<String> = db_obj.get_value("key-text");
+if value_obj.is_some(){
+    println!("bulunan kayit: {}", value_obj.unwrap());
+}else{
+    println!("kayit bulunamadi");
+}
+
 ```
 
   
