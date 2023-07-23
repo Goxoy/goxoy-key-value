@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/Goxoy/goxoy-key-value/"
-keywords = ["key-value-db","kv-db","Sqlite key value DB"]
+keywords = ["key-value-db","kv-db","Sqlite-key-value-DB"]
 description = "Goxoy Key Value DB"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
